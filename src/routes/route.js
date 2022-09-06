@@ -1,11 +1,13 @@
 const express=require("express")
 const router=express.Router()
-const validator=require("../controller/user/validator")
 const getStudent=require("../controller/student.controller")
+const validator=require("../controller/user/validator")
 
-// router.post('/createStudent',validator(),getStudent.createStudent())
-router.get("/",getStudent.getStudent())
-// router.post("/student/delete",getStudent.deleteStudent())
+router.get("/",getStudent.findAll)
+router.post('/createStudent',validator,getStudent.create)
+router.get("/:id",getStudent.findById)
+router.delete("/delete/:id",getStudent.delete)
+router.put("/update/:id",getStudent.update)
 
 
 module.exports=router

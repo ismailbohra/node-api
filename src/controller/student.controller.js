@@ -1,44 +1,59 @@
-const studentCreatemodel=require("../model/student.model")
-const connection = require("../config/index")
+const Student = require('../model/student.model');
 
-exports.createStudent=(req,res)=>{
-    // let sql= `INSERT INTO student_data (id, userName, email, password, enrollment, mobileNumber, birthYear)
-    //  VALUES (NULL, '${req.userName}', '${req.email}', '${req.password}', '${req.enrollment}', '${req.mobileNumber}', '${req.birthYear}')`
-    // // let sql="CREATE TABLE student(id int)"
-    // connection.query(sql,(err,result)=>{
-    //     if (err) throw err
-    //     console.log(result)
-    // })
-    // res.send({
-    //     status:true,
-    //     message:"inserted successfully"
-    // })
-}
+exports.findAll = function(req, res) {
+  Student.findAll(function(err, student) {
+    console.log('controller')
+    if (err)
+    res.send(err);
+    console.log('res', student);
+    res.send(student);
+  });
+};
 
-exports.getStudent=(req,res)=>{
-    let sql= `SELECT * FROM student_data`
-    connection.query(sql,(err,result)=>{
-        if (err) throw err
-        res.send(result)
-    })
-}
 
-exports.deleteStudent=(req,res)=>{
-    // let sql= `DELETE FROM student_data WHERE student_data.id=${req.id}`
-    // connection.query(sql,(err,result)=>{
-    //     if (err) throw err
-    //     console.log(result)
-    //     if (result.insertId>0) {
-    //         res.send({
-    //             status:true,
-    //             message:"deleted successfully"
-    //         })        
-    //     }
-    //     else{
-    //         res.send({
-    //             status:false,
-    //             message:"no record found"
-    //         })
-    //     }
-    // })
-}
+exports.create = function(req, res) {
+    const new_student = new Student(req.body);
+
+    //handles null error 
+   if(req.body.constructor === Object && Object.keys(req.body).length === 0){
+        res.status(400).send({ error:true, message: 'Please provide all required field' });
+    }else{
+        Student.create(new_student, function(err, student) {
+            if (err)
+            res.send(err);
+            res.json({error:false,message:"Student added successfully!",data:student});
+        });
+    }
+};
+
+
+exports.findById = function(req, res) {
+    Student.findById(req.params.id, function(err, student) {
+        if (err)
+        res.send(err);
+        res.json(student);
+    });
+};
+
+
+exports.update = function(req, res) {
+    if(req.body.constructor === Object && Object.keys(req.body).length === 0){
+        res.status(400).send({ error:true, message: 'Please provide all required field' });
+    }else{
+        Student.update(req.params.id, new Student(req.body), function(err, student) {
+            if (err)
+            res.send(err);
+            res.json({ error:false, message: 'Student successfully updated' });
+        });
+    }
+  
+};
+
+
+exports.delete = function(req, res) {
+  Student.delete( req.params.id, function(err, student) {
+    if (err)
+    res.send(err);
+    res.json({ error:false, message: 'Student successfully deleted' });
+  });
+};
