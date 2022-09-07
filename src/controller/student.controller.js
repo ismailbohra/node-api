@@ -1,59 +1,121 @@
-const Student = require('../model/student.model');
-
-exports.findAll = function(req, res) {
-  Student.findAll(function(err, student) {
-    console.log('controller')
-    if (err)
-    res.send(err);
-    console.log('res', student);
-    res.send(student);
-  });
-};
+const db = require("../model/index");
+const Student = db.student;
+const Op = db.Sequelize.Op;
 
 
-exports.create = function(req, res) {
-    const new_student = new Student(req.body);
+exports.create = (req, res) => {
+  // Validate request
+  if (!req.body.title) {
+    res.status(400).send({
+      message: "Content can not be empty!"
+    });
+    return;
+  }
 
-    //handles null error 
-   if(req.body.constructor === Object && Object.keys(req.body).length === 0){
-        res.status(400).send({ error:true, message: 'Please provide all required field' });
-    }else{
-        Student.create(new_student, function(err, student) {
-            if (err)
-            res.send(err);
-            res.json({error:false,message:"Student added successfully!",data:student});
-        });
-    }
-};
+  // Create a Student
+  const student = {
+    title: req.body.title,
+    description: req.body.description,
+    published: req.body.published ? req.body.published : false
+  };
 
-
-exports.findById = function(req, res) {
-    Student.findById(req.params.id, function(err, student) {
-        if (err)
-        res.send(err);
-        res.json(student);
+  // Save Student in the database
+  Student.create(student)
+    .then(data => {
+      res.send(data);
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while creating the Student."
+      });
     });
 };
 
 
-exports.update = function(req, res) {
-    if(req.body.constructor === Object && Object.keys(req.body).length === 0){
-        res.status(400).send({ error:true, message: 'Please provide all required field' });
-    }else{
-        Student.update(req.params.id, new Student(req.body), function(err, student) {
-            if (err)
-            res.send(err);
-            res.json({ error:false, message: 'Student successfully updated' });
-        });
-    }
-  
+exports.findAll = (req, res) => {
+  const title = req.query.title;
+  var condition = title ? { title: { [Op.like]: `%${title}%` } } : null;
+
+  Student.findAll({ where: condition })
+    .then(data => {
+      res.send(data);
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving tutorials."
+      });
+    });
 };
 
 
-exports.delete = function(req, res) {
-  Student.delete( req.params.id, function(err, student) {
-    if (err)
-    res.send(err);
-    res.json({ error:false, message: 'Student successfully deleted' });
-  });
+exports.findOne = (req, res) => {
+  const id = req.params.id;
+
+  Student.findByPk(id)
+    .then(data => {
+      if (data) {
+        res.send(data);
+      } else {
+        res.status(404).send({
+          message: `Cannot find Student with id=${id}.`
+        });
+      }
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: "Error retrieving Student with id=" + id
+      });
+    });
+};
+
+
+exports.update = (req, res) => {
+  const id = req.params.id;
+
+  Student.update(req.body, {
+    where: { id: id }
+  })
+    .then(num => {
+      if (num == 1) {
+        res.send({
+          message: "Student was updated successfully."
+        });
+      } else {
+        res.send({
+          message: `Cannot update Student with id=${id}. Maybe Student was not found or req.body is empty!`
+        });
+      }
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: "Error updating Student with id=" + id
+      });
+    });
+};
+
+
+exports.delete = (req, res) => {
+  const id = req.params.id;
+
+  Student.destroy({
+    where: { id: id }
+  })
+    .then(num => {
+      if (num == 1) {
+        res.send({
+          message: "Student was deleted successfully!"
+        });
+      } else {
+        res.send({
+          message: `Cannot delete Student with id=${id}. Maybe Student was not found!`
+        });
+      }
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: "Could not delete Student with id=" + id
+      });
+    });
 };

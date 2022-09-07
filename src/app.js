@@ -1,16 +1,22 @@
 const express=require("express")
-const connection = require("./config")
 const app=express()
 const port=process.env.port|| 8000
-const create=require("./routes/route")
+require("./util/config")
+const db = require("./model/index");
 
+db.sequelize.sync({force:true})
+  .then(() => {
+    console.log("Synced db.");
+  })
+  .catch((err) => {
+    console.log("Failed to sync db: " + err.message);
+  });
 
-require("./config/index")
 
 app.use(express.json())
 
-const studenCreate=require("./routes/route")
-app.use("/student",studenCreate)
+const user=require("./routes/index")
+app.use("/",user)
 
 
 app.listen(port,()=>{
