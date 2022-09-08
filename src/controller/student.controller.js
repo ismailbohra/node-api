@@ -4,22 +4,15 @@ const Op = db.Sequelize.Op;
 
 
 exports.create = (req, res) => {
-  // Validate request
-  if (!req.body.title) {
-    res.status(400).send({
-      message: "Content can not be empty!"
-    });
-    return;
-  }
 
-  // Create a Student
   const student = {
-    title: req.body.title,
-    description: req.body.description,
-    published: req.body.published ? req.body.published : false
+    name:req.body.name,
+    computer_code:req.body.computer_code,
+    enrollment:req.body.enrollment,
+    email:req.body.email,
+    dob:req.body.dob
   };
 
-  // Save Student in the database
   Student.create(student)
     .then(data => {
       res.send(data);
@@ -77,8 +70,8 @@ exports.update = (req, res) => {
   Student.update(req.body, {
     where: { id: id }
   })
-    .then(num => {
-      if (num == 1) {
+    .then(data => {
+      if (data == 1) {
         res.send({
           message: "Student was updated successfully."
         });
@@ -102,8 +95,8 @@ exports.delete = (req, res) => {
   Student.destroy({
     where: { id: id }
   })
-    .then(num => {
-      if (num == 1) {
+    .then(data => {
+      if (data == 1) {
         res.send({
           message: "Student was deleted successfully!"
         });
@@ -119,3 +112,33 @@ exports.delete = (req, res) => {
       });
     });
 };
+
+exports.auth=(req,res)=>{
+  const computer_code=req.body.computer_code;
+  const dob=req.body.dob
+
+Student.findOne({
+    where:{
+      computer_code:computer_code
+    }
+  })
+  .then(data => {
+    if (data != null) {
+      res.send({
+        data:data,
+        message: "student exist"
+      });
+    } else {
+      res.send({
+        data:data,
+        message: `incorrect credentials`
+      });
+    }
+  })
+  .catch(err => {
+    res.status(500).send({
+      message: "Error to connect from table "
+    });
+  });
+
+}
