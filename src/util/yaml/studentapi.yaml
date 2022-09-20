@@ -1,7 +1,7 @@
 swagger: "2.0"
 info:
   title: college
-  description: this api contain .....
+  description: this api is  for student portal
   version: 1.0
   contact:
     email: ismailbohra99@gmail.com
@@ -141,4 +141,26 @@ paths:
       responses:
         '200':
           description: OK
+           
+  /student/uploadImage2:
+     post:
+      tags:
+        - Upload
+      summary: Upload Image of student
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: image
+          type: file
+          required: true
+          description: The file to upload.
+        
+      responses:
+        200:
+          description: Successful Response
+        400:
+          description: User Error
+        500:
+          description: Internal Server Error
            
