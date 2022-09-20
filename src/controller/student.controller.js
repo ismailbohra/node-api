@@ -1,144 +1,234 @@
+const multer = require("multer");
+const path = require("path");
 const db = require("../model/index");
+const formidable = require("formidable");
+const { closeSync } = require("fs");
+const { Console } = require("console");
+const { DATE } = require("sequelize");
 const Student = db.student;
 const Op = db.Sequelize.Op;
 
-
 exports.create = (req, res) => {
-
   const student = {
-    name:req.body.name,
-    computer_code:req.body.computer_code,
-    enrollment:req.body.enrollment,
-    email:req.body.email,
-    dob:req.body.dob
+    name: req.body.name,
+    computer_code: req.body.computer_code,
+    enrollment: req.body.enrollment,
+    email: req.body.email,
+    dob: req.body.dob,
   };
 
   Student.create(student)
-    .then(data => {
+    .then((data) => {
       res.send(data);
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
         message:
-          err.message || "Some error occurred while creating the Student."
+          err.message || "Some error occurred while creating the Student.",
       });
     });
 };
-
 
 exports.findAll = (req, res) => {
   const title = req.query.title;
   var condition = title ? { title: { [Op.like]: `%${title}%` } } : null;
 
   Student.findAll({ where: condition })
-    .then(data => {
-      res.send(data);
+    .then((data) => {
+      res.status(200).send(data);
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
         message:
-          err.message || "Some error occurred while retrieving tutorials."
+          err.message || "Some error occurred while retrieving tutorials.",
       });
     });
 };
-
 
 exports.findOne = (req, res) => {
   const id = req.params.id;
 
   Student.findByPk(id)
-    .then(data => {
+    .then((data) => {
       if (data) {
         res.send(data);
       } else {
         res.status(404).send({
-          message: `Cannot find Student with id=${id}.`
+          message: `Cannot find Student with id=${id}.`,
         });
       }
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
-        message: "Error retrieving Student with id=" + id
+        message: "Error retrieving Student with id=" + id,
       });
     });
 };
-
 
 exports.update = (req, res) => {
   const id = req.params.id;
 
   Student.update(req.body, {
-    where: { id: id }
+    where: { id: id },
   })
-    .then(data => {
+    .then((data) => {
       if (data == 1) {
         res.send({
-          message: "Student was updated successfully."
+          message: "Student was updated successfully.",
         });
       } else {
         res.send({
-          message: `Cannot update Student with id=${id}. Maybe Student was not found or req.body is empty!`
+          message: `Cannot update Student with id=${id}. Maybe Student was not found or req.body is empty!`,
         });
       }
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
-        message: "Error updating Student with id=" + id
+        message: "Error updating Student with id=" + id,
       });
     });
 };
-
 
 exports.delete = (req, res) => {
   const id = req.params.id;
 
   Student.destroy({
-    where: { id: id }
+    where: { id: id },
   })
-    .then(data => {
+    .then((data) => {
       if (data == 1) {
         res.send({
-          message: "Student was deleted successfully!"
+          message: "Student was deleted successfully!",
         });
       } else {
         res.send({
-          message: `Cannot delete Student with id=${id}. Maybe Student was not found!`
+          message: `Cannot delete Student with id=${id}. Maybe Student was not found!`,
         });
       }
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
-        message: "Could not delete Student with id=" + id
+        message: "Could not delete Student with id=" + id,
       });
     });
 };
 
-exports.auth=(req,res)=>{
-  const computer_code=req.body.computer_code;
-  const dob=req.body.dob
+exports.auth = (req, res) => {
+  const computer_code = req.body.computer_code;
+  const dob = req.body.dob;
 
-Student.findOne({
-    where:{
-      computer_code:computer_code
-    }
+  Student.findOne({
+    where: {
+      computer_code: computer_code,
+    },
   })
-  .then(data => {
-    if (data != null) {
-      res.send({
-        data:data,
-        message: "student exist"
+    .then((data) => {
+      if (data != null) {
+        res.send({
+          data: data,
+          message: "student exist",
+        });
+      } else {
+        res.send({
+          data: data,
+          message: `incorrect credentials`,
+        });
+      }
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: "Error to connect from table ",
       });
-    } else {
-      res.send({
-        data:data,
-        message: `incorrect credentials`
-      });
-    }
-  })
-  .catch(err => {
-    res.status(500).send({
-      message: "Error to connect from table "
     });
-  });
+};
 
-}
+
+
+// exports.uploadImg =(req,res)=>{
+//   console.log('function has been called')
+//  try {
+//   console.log('inside try')
+//   const storage = multer.diskStorage({
+//     destination: (req, file, cb) => {
+//       cb(null, "../uploads");
+//     },
+//     filename: (req, file, cb) => {
+//       cb(null, Date.now() + path.extname(file.originalname));
+//     },
+//   });
+//   multer({
+//     storage: storage,
+//     limits: { fileSize: '1000000' },
+//     fileFilter: (req, file, cb) => {
+//         const fileTypes = /jpeg|jpg|png|gif/
+//         const mimeType = fileTypes.test(file.mimetype)  
+//         const extname = fileTypes.test(path.extname(file.originalname))
+  
+//         if(mimeType && extname) {
+//             return cb(null, true)
+//         }
+//         cb('Give proper files formate to upload')
+//     }
+//   }).single('image')
+//  } catch (error) {
+//   console.log(error)
+//  }
+// }
+
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, '../uploads/'));
+  },
+  filename: (req, file, cb) => {
+      cb(null, Date.now() + path.extname(file.originalname))
+  }
+})
+
+exports.uploadImage = multer({
+  storage: storage,
+  limits: { fileSize: '1000000' },
+  fileFilter: (req, file, cb) => {
+      const fileTypes = /jpeg|jpg|png|gif/
+      const mimeType = fileTypes.test(file.mimetype)  
+      const extname = fileTypes.test(path.extname(file.originalname))
+
+      if(mimeType && extname) {
+          return cb(null, true)
+      }
+      cb('Give proper files formate to upload')
+  }
+}).single('image')
+
+
+
+
+
+// exports.uploadImage = (req, res) => {
+ 
+
+  // const upload = multer({
+  //   storage: storage,
+  //   limits: { fileSize: "1000000" },
+  //   fileFilter: (req, file, cb) => {
+  //     const fileTypes = /jpeg|jpg|png|gif/;
+  //     const mimeType = fileTypes.test(file.mimetype);
+  //     const extname = fileTypes.test(path.extname(file.originalname));
+
+  //     if (mimeType && extname) {
+  //       return cb(null, true);
+  //     }
+  //     cb("Give proper files formate to upload");
+  //   },
+  // }).single("image");
+  
+
+//   uploadImg()
+// };
+exports.uploadImagePage = (req, res) => {
+  try {
+    res.sendFile(path.join(__dirname, "../service/upload.html"));
+  } catch (error) {
+    console.log(error);
+  }
+};

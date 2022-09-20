@@ -1,0 +1,6 @@
+# GET http://localhost:5000/student
+
+
+
+
+GET  http://localhost:5000/student/student/uploadImage
