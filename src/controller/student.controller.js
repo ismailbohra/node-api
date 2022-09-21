@@ -5,6 +5,7 @@ const formidable = require("formidable");
 const { closeSync } = require("fs");
 const { Console } = require("console");
 const { DATE } = require("sequelize");
+const jwt=require("jsonwebtoken")
 const Student = db.student;
 const Op = db.Sequelize.Op;
 
@@ -124,9 +125,10 @@ exports.auth = (req, res) => {
   })
     .then((data) => {
       if (data != null) {
-        res.send({
-          data: data,
-          message: "student exist",
+        jwt.sign({data}, 'secretkey', (err, token) => {
+          res.json({
+            token
+          });
         });
       } else {
         res.send({
@@ -136,44 +138,12 @@ exports.auth = (req, res) => {
       }
     })
     .catch((err) => {
+      console.log(err)
       res.status(500).send({
         message: "Error to connect from table ",
       });
     });
 };
-
-
-
-// exports.uploadImg =(req,res)=>{
-//   console.log('function has been called')
-//  try {
-//   console.log('inside try')
-//   const storage = multer.diskStorage({
-//     destination: (req, file, cb) => {
-//       cb(null, "../uploads");
-//     },
-//     filename: (req, file, cb) => {
-//       cb(null, Date.now() + path.extname(file.originalname));
-//     },
-//   });
-//   multer({
-//     storage: storage,
-//     limits: { fileSize: '1000000' },
-//     fileFilter: (req, file, cb) => {
-//         const fileTypes = /jpeg|jpg|png|gif/
-//         const mimeType = fileTypes.test(file.mimetype)  
-//         const extname = fileTypes.test(path.extname(file.originalname))
-  
-//         if(mimeType && extname) {
-//             return cb(null, true)
-//         }
-//         cb('Give proper files formate to upload')
-//     }
-//   }).single('image')
-//  } catch (error) {
-//   console.log(error)
-//  }
-// }
 
 
 const storage = multer.diskStorage({
@@ -200,31 +170,6 @@ exports.uploadImage = multer({
   }
 }).single('image')
 
-
-
-
-
-// exports.uploadImage = (req, res) => {
- 
-
-  // const upload = multer({
-  //   storage: storage,
-  //   limits: { fileSize: "1000000" },
-  //   fileFilter: (req, file, cb) => {
-  //     const fileTypes = /jpeg|jpg|png|gif/;
-  //     const mimeType = fileTypes.test(file.mimetype);
-  //     const extname = fileTypes.test(path.extname(file.originalname));
-
-  //     if (mimeType && extname) {
-  //       return cb(null, true);
-  //     }
-  //     cb("Give proper files formate to upload");
-  //   },
-  // }).single("image");
-  
-
-//   uploadImg()
-// };
 exports.uploadImagePage = (req, res) => {
   try {
     res.sendFile(path.join(__dirname, "../service/upload.html"));

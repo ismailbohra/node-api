@@ -10,10 +10,11 @@ const controller=require("../controller/index")
 
 const getStudent=controller.student_controller
 const validator=require("../validation/student.validation")
+const verifyToken=require("../util/jwtVerification/tokenVerificaton")
 
 router.get("/",getStudent.findAll)
 router.post('/createStudent',validator,getStudent.create)
-router.get("/:id",getStudent.findOne)
+router.get("/:id",verifyToken,getStudent.findOne)
 router.post("/authenticate",getStudent.auth)
 router.delete("/delete/:id",getStudent.delete)
 router.put("/update/:id",getStudent.update)

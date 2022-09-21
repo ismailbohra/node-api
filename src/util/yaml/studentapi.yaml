@@ -142,6 +142,7 @@ paths:
         '200':
           description: OK
            
+           
   /student/uploadImage2:
      post:
       tags:
