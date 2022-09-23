@@ -1,4 +1,4 @@
-swagger: "2.0"
+openapi: 3.0.0
 info:
   title: college
   description: this api is  for student portal
@@ -13,6 +13,8 @@ schemes: [http,https]
 paths:
   /student:
     get:
+      security:
+       - Bearer: []
       summary: Return json objects of students
       descriptions: it return objects
       responses:
@@ -101,6 +103,11 @@ paths:
           schema:
             type : integer
             format: int64
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type : string    
       responses: 
         '200':
           description: OK
@@ -143,6 +150,11 @@ paths:
                 type: string
               dob:
                 type: integer      
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type : string
       responses:
         '200':
           description: OK
@@ -169,4 +181,40 @@ paths:
           description: User Error
         500:
           description: Internal Server Error
-           
+  /student/authenticate:
+     post:
+      tags:
+        - Auth
+      summary: authorization
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - computercode
+              - dob
+          
+            properties:
+              computer_code:
+                type: integer
+              dob:
+                type: integer      
+        
+      responses:
+        200:
+          description: Successful Response
+        400:
+          description: User Error
+        500:
+          description: Internal Server Error        
+
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
