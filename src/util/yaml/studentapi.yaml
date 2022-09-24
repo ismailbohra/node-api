@@ -159,19 +159,21 @@ paths:
       summary: Upload Image of student
       consumes:
         - multipart/form-data
-      parameters:
-         - in: formData
-           name: image
-           type: file
-           required: true
-           description: The file to upload.
+      # parameters:
+      #    - in: formData
+      #      name: image
+      #      type: file
+      #      required: true
+      #      description: The file to upload.
       requestBody:
-        content:
-          image/png:
+        content: 
+          multipart/form-data:
             schema:
-              type: file
-              name: image
-              format: binary
+              type: object
+              properties:
+                image:
+                  type: file
+                  
         
       responses:
         200:
