@@ -43,7 +43,7 @@ paths:
         '200':
           description: OK
 
-  # /student/student/uploadImage:
+  /student/student/uploadImage:
     get:
       summary: Return html page for uploading images
       descriptions: it return objects
@@ -159,12 +159,12 @@ paths:
       summary: Upload Image of student
       consumes:
         - multipart/form-data
-      # parameters:
-      #   - in: formData
-      #     name: image
-      #     type: file
-      #     required: true
-      #     description: The file to upload.
+      parameters:
+         - in: formData
+           name: image
+           type: file
+           required: true
+           description: The file to upload.
       requestBody:
         content:
           image/png:
